@@ -17,7 +17,7 @@ def longDescription():
 
 
 #__version__ = get_version('unisos/icm/__init__.py')
-__version__ = '0.3'
+__version__ = '0.4'
 
 
 requires = [
@@ -30,7 +30,9 @@ requires = [
 
 scripts = [
     "./bin/icmBegin.py",
-    "./bin/icmExamples.py",    
+    "./bin/icmExamples.py",
+    "./bin/icmPkgBegin.py",
+    "./bin/nonIcmLibUser.py",
 ]
 
 
