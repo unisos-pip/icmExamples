@@ -1,0 +1,74 @@
+RefactoringTool: Skipping optional fixer: buffer
+RefactoringTool: Skipping optional fixer: idioms
+RefactoringTool: Skipping optional fixer: set_literal
+RefactoringTool: Skipping optional fixer: ws_comma
+RefactoringTool: Refactored ./icmExamples/py3/bin/icmExamples.py
+RefactoringTool: Files that were modified:
+RefactoringTool: ./icmExamples/py3/bin/icmExamples.py
+--- ./icmExamples/py3/bin/icmExamples.py	(original)
++++ ./icmExamples/py3/bin/icmExamples.py	(refactored)
+@@ -376,20 +376,20 @@
+         myName=self.myName()
+         thisOutcome = icm.OpOutcome(invokerName=myName)
+ 
+-        print G.icmInfo
++        print(G.icmInfo)
+ 
+         for eachArg in effectiveArgsList:
+             icm.ANN_here("{}".format(eachArg))
+ 
+-        print (icm.__file__)
+-        print sys.path
++        print((icm.__file__))
++        print(sys.path)
+ 
+         import imp
+-        print(imp.find_module('unisos/icm'))
++        print((imp.find_module('unisos/icm')))
+ 
+         @ucf.runOnceOnly
+         def echo(str):
+-            print str
++            print(str)
+             
+         echo("first")
+         echo("second")  # Should not run
+@@ -436,10 +436,10 @@
+         action = effectiveArgsList[0]
+         effectiveArgsList.pop(0)
+ 
+-        print action
++        print(action)
+         
+         for each in effectiveArgsList:
+-            print each
++            print(each)
+ 
+         return cmndOutcome.set(
+             opError=icm.OpError.Success,
+@@ -526,10 +526,10 @@
+         action = effectiveArgsList[0]
+         effectiveArgsList.pop(0)
+ 
+-        print action
++        print(action)
+         
+         for each in effectiveArgsList:
+-            print each
++            print(each)
+ 
+         outcome = icm.subProc_bash("""\
+ echo action={action} {argsList}"""
+@@ -626,10 +626,10 @@
+     Could also be done with @subjectToDryRun
+     """
+     if icm.icmRunArgs_isRunModeDryRun():
+-        print( "Skipping This Intrusive Function" + arg )
++        print(( "Skipping This Intrusive Function" + arg ))
+         return
+ 
+-    print( "Performing Some Intrusive Action" + arg )
++    print(( "Performing Some Intrusive Action" + arg ))
+ 
+ 
+ ####+BEGIN: bx:icm:python:cmnd:classHead :cmndName "platformConfigsUse" :comment "" :parsMand "" :parsOpt "" :argsMin "0" :argsMax "0" :asFunc "" :interactiveP ""
