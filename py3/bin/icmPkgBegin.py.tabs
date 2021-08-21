@@ -121,7 +121,7 @@ class icmOverview(icm.Cmnd):
 *       [[elisp:(org-show-subtree)][|=]]  [[elisp:(org-cycle)][| *Description:* | ]]
 **  [[elisp:(org-cycle)][| ]]  [Xref]          :: *[Related/Xrefs:]*  <<Xref-Here->>  -- External Documents  [[elisp:(org-cycle)][| ]]
 
-**  [[elisp:(org-cycle)][| ]]   Model and Terminology                                      :Overview:
+**  [[elisp:(org-cycle)][| ]]	Model and Terminology 					   :Overview:
 *** bxpRootXxFile   -- /etc/bystarRoot, ~/.bystarRoot, /bystar
 *** bxpRoot         -- Base For This Module
 *** bpb             -- ByStar Platform Base, Location Of Relevant Parts (Bisos, blee, bsip

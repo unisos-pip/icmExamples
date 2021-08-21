@@ -1,12 +1,12 @@
 #! /usr/bin/env python
 # -*- coding: utf-8 -*-
 """\
-*    *[Summary]* :: An =ICM=: a beginning template for development of new ICMs.
+*    *[Summary]* :: An =ICM=: a front end to pip for ByStar repositories and destinations.
 """
 
 ####+BEGIN: bx:icm:python:top-of-file :partof "bystar" :copyleft "halaal+minimal"
 """
-*  This file:/acct/employee/lsipusr/tmp/t2/newIcmScript.py :: [[elisp:(org-cycle)][| ]]
+*  This file:/acct/smb/com/dev-py/LUE/Sync/pypi/pkgs/unisos/icmExamples/dev/bin/icmExamples.py :: [[elisp:(org-cycle)][| ]]
  is part of The Libre-Halaal ByStar Digital Ecosystem. http://www.by-star.net
  *CopyLeft*  This Software is a Libre-Halaal Poly-Existential. See http://www.freeprotocols.org
  A Python Interactively Command Module (PyICM). Part Of ByStar.
@@ -19,11 +19,11 @@
 *  [[elisp:(org-cycle)][| *ICM-INFO:* |]] :: Author, Copyleft and Version Information
 """
 ####+BEGIN: bx:icm:python:name :style "fileName"
-__icmName__ = "newIcmScript"
+__icmName__ = "icmExamples"
 ####+END:
 
 ####+BEGIN: bx:global:timestamp:version-py :style "date"
-__version__ = "201805242002"
+__version__ = "201805141145"
 ####+END:
 
 ####+BEGIN: bx:global:icm:status-py :status "Production"
@@ -67,16 +67,26 @@ import sys
 
 import collections
 
+####+BEGIN: bx:dblock:global:file-insert :file "/libre/ByStar/InitialTemplates/update/sw/icm/py/importUcfIcmBleepG.py"
 from unisos import ucf
 from unisos import icm
 
+icm.unusedSuppressForEval(ucf.__file__)  # in case icm and ucf are not used
+
+G = icm.IcmGlobalContext()
+G.icmLibsAppend = __file__
+G.icmCmndsLibsAppend = __file__
+
 from blee.icmPlayer import bleep
 
-import newLibIcmCmnd
+####+END:
+
+from  bisos.platform import bxPlatformThis
+from  bisos.platform import bxPlatformConfig
 
 g_importedCmnds = {        # Enumerate modules from which CMNDs become invokable
     'bleep': bleep.__file__,
-    'newLibIcmCmnd' : newLibIcmCmnd.__file__,
+    'bxPlatformConfig': bxPlatformConfig.__file__,
 }
 
 ####+BEGIN: bx:icm:python:section :title "= =Framework::= ICM  Description (Overview) ="
@@ -111,17 +121,13 @@ class icmOverview(icm.Cmnd):
         callParamsDict = {}
         if not icm.cmndCallParamsValidate(callParamsDict, interactive, outcome=cmndOutcome):
             return cmndOutcome
-
-        cmndArgsSpecDict = self.cmndArgsSpec()
-        if not self.cmndArgsValidate(effectiveArgsList, cmndArgsSpecDict, outcome=cmndOutcome):
-            return cmndOutcome
 ####+END:
 
         moduleDescription="""
 *       [[elisp:(org-show-subtree)][|=]]  [[elisp:(org-cycle)][| *Description:* | ]]
 **  [[elisp:(org-cycle)][| ]]  [Xref]          :: *[Related/Xrefs:]*  <<Xref-Here->>  -- External Documents  [[elisp:(org-cycle)][| ]]
 
-**  [[elisp:(org-cycle)][| ]]   Model and Terminology                                      :Overview:
+**  [[elisp:(org-cycle)][| ]]	Model and Terminology 					   :Overview:
 *** bxpRootXxFile   -- /etc/bystarRoot, ~/.bystarRoot, /bystar
 *** bxpRoot         -- Base For This Module
 *** bpb             -- ByStar Platform Base, Location Of Relevant Parts (Bisos, blee, bsip
@@ -137,42 +143,22 @@ class icmOverview(icm.Cmnd):
 """
         
         moduleStatus="""
-*       [[elisp:(org-show-subtree)][|=]]  [[elisp:(org-cycle)][| *Status:* | ]]
+*       [[elisp:(org-show-subtree)][|=]]  [[elisp:(org-cycle)][| *Status:* | ]
 **  [[elisp:(org-cycle)][| ]]  [Info]          :: *[Current-Info:]* Status/Maintenance -- General TODO List [[elisp:(org-cycle)][| ]]
 ** TODO [[elisp:(org-cycle)][| ]]  Current         :: Just getting started [[elisp:(org-cycle)][| ]]
 **      [End-Of-Status]
 """
-        
+
 ####+BEGIN: bx:dblock:global:file-insert-cond :cond "./blee.el" :file "/libre/ByStar/InitialTemplates/update/sw/icm/py/moduleOverview.py"
-        actions = self.cmndArgsGet("0&3", cmndArgsSpecDict, effectiveArgsList)
-        if actions[0] == "all":
-            actions = ['moduleDescription', 'moduleUsage', 'moduleStatus']
-        for each in actions:
-            print(each)
-            if interactive:
-                #print( str( __doc__ ) )  # This is the Summary: from the top doc-string
-                #version(interactive=True)
-                exec("""print({})""".format(each))
+        cmndArgsSpec = {"0&-1": ['moduleDescription', 'moduleUsage', 'moduleStatus']}
+        cmndArgsValid = cmndArgsSpec["0&-1"]
+        icm.unusedSuppressForEval(moduleDescription, moduleUsage, moduleStatus)
+        for each in effectiveArgsList:
+            if each in cmndArgsValid:
+                if interactive:
+                    exec("""print({})""".format(each))
                 
         return(format(str(__doc__)+moduleDescription))
-
-    """
-**  [[elisp:(org-cycle)][| ]]  [[elisp:(org-show-subtree)][|=]] [[elisp:(show-children 10)][|V]] [[elisp:(org-tree-to-indirect-buffer)][|>]] [[elisp:(blee:ppmm:org-mode-toggle)][Nat]] [[elisp:(beginning-of-buffer)][Top]] [[elisp:(delete-other-windows)][(1)]] || Method-anyOrNone :: /cmndArgsSpec/ retType=bool argsList=nil deco=default  [[elisp:(org-cycle)][| ]]
-"""
-    @icm.subjectToTracking(fnLoc=True, fnEntry=True, fnExit=True)
-    def cmndArgsSpec(self):
-        """
-***** Cmnd Args Specification
-"""
-        cmndArgsSpecDict = icm.CmndArgsSpecDict()
-        cmndArgsSpecDict.argsDictAdd(
-            argPosition="0&3",
-            argName="actions",
-            argChoices=['all', 'moduleDescription', 'moduleUsage', 'moduleStatus'],
-            argDescription="Output relevant information",
-        )
-
-        return cmndArgsSpecDict
 ####+END:
 
 
@@ -260,9 +246,8 @@ def g_argsExtraSpecify(
         argparseLongOpt='--pkgSrc',
     )
 
-    bleep.commonParamsSpecify(icmParams)
-    newLibIcmCmnd.commonParamsSpecify(icmParams)        
-       
+    bleep.commonParamsSpecify(icmParams)    
+    
     icm.argsparseBasedOnIcmParams(parser, icmParams)
 
     # So that it can be processed later as well.
@@ -271,7 +256,7 @@ def g_argsExtraSpecify(
     return
 
 
-####+BEGIN: bx:icm:python:cmnd:classHead :cmndName "examples" :cmndType "ICM-Cmnd-FWrk" :comment "FrameWrk: ICM Examples" :parsMand "" :parsOpt "" :argsMin "0" :argsMax "0" :asFunc "" :interactiveP ""
+####+BEGIN: bx:icm:python:cmnd:classHead :cmndName "examples" :cmndType "ICM-Cmnd-FWrk"  :comment "FrameWrk: ICM Examples" :parsMand "" :parsOpt "" :argsMin "0" :argsMax "0" :asFunc "" :interactiveP ""
 """
 *  [[elisp:(org-cycle)][| ]]  [[elisp:(org-show-subtree)][|=]] [[elisp:(show-children 10)][|V]] [[elisp:(org-tree-to-indirect-buffer)][|>]] [[elisp:(blee:ppmm:org-mode-toggle)][Nat]] [[elisp:(beginning-of-buffer)][Top]] [[elisp:(delete-other-windows)][(1)]] || ICM-Cmnd-FWrk  :: /examples/ =FrameWrk: ICM Examples= parsMand= parsOpt= argsMin=0 argsMax=0 asFunc= interactive=  [[elisp:(org-cycle)][| ]]
 """
@@ -292,7 +277,6 @@ class examples(icm.Cmnd):
         callParamsDict = {}
         if not icm.cmndCallParamsValidate(callParamsDict, interactive, outcome=cmndOutcome):
             return cmndOutcome
-
 ####+END:
         def cpsInit(): return collections.OrderedDict()
         def menuItem(): icm.ex_gCmndMenuItem(cmndName, cps, cmndArgs, verbosity='little')
@@ -306,47 +290,49 @@ class examples(icm.Cmnd):
         icm.G_commonBriefExamples()
 
         bleep.examples_icmBasic()
-        
-        newLibIcmCmnd.examples_libModuleCmnds()
-        
-####+BEGIN: bx:icm:python:cmnd:subSection :title "Dev And Testing"
-        """
-**  [[elisp:(beginning-of-buffer)][Top]] ================ [[elisp:(blee:ppmm:org-mode-toggle)][Nat]] [[elisp:(delete-other-windows)][(1)]]          *Dev And Testing*  [[elisp:(org-cycle)][| ]]  [[elisp:(org-show-subtree)][|=]] 
-"""
-####+END:
 
-        icm.cmndExampleMenuChapter('*General Dev and Testing IIFs*')
+        icm.cmndExampleMenuChapter('*General Dev and Testing CMNDs*')
 
         cmndName = "unitTest"
         
         cmndArgs = ""; cps = cpsInit(); # cps['icmsPkgName'] = icmsPkgName 
         menuItem()
+        icm.ex_gCmndMenuItem(cmndName, cps, cmndArgs, verbosity='full')
+
+        icm.cmndExampleMenuChapter('*argsProc*')
+
+        cmndName = "argsProc" ; cmndArgs = "list argOne twoArg arg3" ;
+        cps = collections.OrderedDict() ;
+        icm.ex_gCmndMenuItem(cmndName, cps, cmndArgs, verbosity='little')
+
+        icm.cmndExampleMenuChapter('*bashSubProcWithArgs*')
+
+        cmndName = "bashSubProcWithArgs" ; cmndArgs = "argOne twoArg arg3" ;
+        cps = collections.OrderedDict() ;
+        icm.ex_gCmndMenuItem(cmndName, cps, cmndArgs, verbosity='little')
+        icm.ex_gCmndMenuItem(cmndName, cps, cmndArgs, verbosity='full')        
+        
+
+        icm.cmndExampleMenuChapter('*Input and Output Examples CMNDs*')
+
+        cmndName = "outStreamsExamples" ; cmndArgs = "" ;
+        cps = collections.OrderedDict() ; # cps['icmsPkgName'] = icmsPkgName 
+        icm.ex_gCmndMenuItem(cmndName, cps, cmndArgs, verbosity='little')
         icm.ex_gCmndMenuItem(cmndName, cps, cmndArgs, verbosity='full')        
 
-        
-####+BEGIN: bx:icm:python:cmnd:subSection :title "Remain In Sycn With Template"
-        """
-**  [[elisp:(beginning-of-buffer)][Top]] ================ [[elisp:(blee:ppmm:org-mode-toggle)][Nat]] [[elisp:(delete-other-windows)][(1)]]          *Remain In Sycn With Template*  [[elisp:(org-cycle)][| ]]  [[elisp:(org-show-subtree)][|=]] 
-"""
-####+END:
-        
-        icm.cmndExampleMenuChapter('*Remain In Sycn With Template*')
+        icm.cmndExampleMenuChapter('*Platform Configuration Paraemters -- Control Bases*')
 
-        #templateFile = "/de/bx/nne/dev-py/pypi/pkgs/bisos/examples/dev/bin/icmBegin.py"
-        templateFile = "/de/bx/nne/dev-py/pypi/pkgs/unisos/icmExamples/dev/bin/icmBegin.py"
-        thisFile = __file__
+        cmndName = "platformConfigsUse" ; cmndArgs = "" ;
+        cps = collections.OrderedDict() ; # cps['icmsPkgName'] = icmsPkgName 
+        icm.ex_gCmndMenuItem(cmndName, cps, cmndArgs, verbosity='little')
+        icm.ex_gCmndMenuItem(cmndName, cps, cmndArgs, verbosity='full')
 
-        execLineEx("""diff {thisFile} {templateFile}""".format(thisFile=thisFile, templateFile=templateFile))
-        execLineEx("""cp {thisFile} {templateFile}""".format(thisFile=thisFile, templateFile=templateFile))
-        execLineEx("""cp {templateFile} {thisFile}""".format(thisFile=thisFile, templateFile=templateFile))                
+        icm.cmndExampleMenuChapter('*Other Than ICM Execution Line Examples*')
+
+        execLineEx("""ls -l""")
 
         return(cmndOutcome)
 
-    def cmndDocStr(self): return """
-** ICM Examples -- List of commonly used lines for this ICM [[elisp:(org-cycle)][| ]]
-"""
-    
-   
     
 ####+BEGIN: bx:dblock:global:file-insert :file "/libre/ByStar/InitialTemplates/software/plusOrg/dblock/inserts/G_examples.bottom.py"
     # Intentionally Left Blank -- previously: lhip.G_devExamples(G_myName)
@@ -360,7 +346,7 @@ class examples(icm.Cmnd):
 """
 ####+END:
 
-####+BEGIN: bx:icm:python:cmnd:classHead :cmndName "unitTest" :parsMand "" :parsOpt "" :argsMin "0" :argsMax "1" :asFunc "" :interactiveP ""
+####+BEGIN: bx:icm:python:cmnd:classHead :modPrefix "new" :cmndName "unitTest" :parsMand "" :parsOpt "" :argsMin "0" :argsMax "1" :asFunc "" :interactiveP ""
 """
 *  [[elisp:(org-cycle)][| ]]  [[elisp:(org-show-subtree)][|=]] [[elisp:(show-children 10)][|V]] [[elisp:(org-tree-to-indirect-buffer)][|>]] [[elisp:(blee:ppmm:org-mode-toggle)][Nat]] [[elisp:(beginning-of-buffer)][Top]] [[elisp:(delete-other-windows)][(1)]] || ICM-Cmnd       :: /unitTest/ parsMand= parsOpt= argsMin=0 argsMax=1 asFunc= interactive=  [[elisp:(org-cycle)][| ]]
 """
@@ -384,10 +370,6 @@ class unitTest(icm.Cmnd):
 
         callParamsDict = {}
         if not icm.cmndCallParamsValidate(callParamsDict, interactive, outcome=cmndOutcome):
-            return cmndOutcome
-
-        cmndArgsSpecDict = self.cmndArgsSpec()
-        if not self.cmndArgsValidate(effectiveArgsList, cmndArgsSpecDict, outcome=cmndOutcome):
             return cmndOutcome
 ####+END:
 
@@ -416,9 +398,291 @@ class unitTest(icm.Cmnd):
     
     def cmndDocStr(self): return """
 ** Place holder for ICM's experimental or test code.  [[elisp:(org-cycle)][| ]]
- You can use this Cmnd for rapid prototyping and testing of newly developed functions.
+*** You can use this Cmnd for rapid prototyping and testing of newly developed functions.
 """
 
+
+####+BEGIN: bx:icm:python:cmnd:classHead :cmndName "argsProc" :comment "" :parsMand "" :parsOpt "" :argsMin "0" :argsMax "1000" :asFunc "" :interactiveP ""
+"""
+*  [[elisp:(org-cycle)][| ]]  [[elisp:(org-show-subtree)][|=]] [[elisp:(show-children 10)][|V]] [[elisp:(org-tree-to-indirect-buffer)][|>]] [[elisp:(blee:ppmm:org-mode-toggle)][Nat]] [[elisp:(beginning-of-buffer)][Top]] [[elisp:(delete-other-windows)][(1)]] || ICM-Cmnd       :: /argsProc/ parsMand= parsOpt= argsMin=0 argsMax=1000 asFunc= interactive=  [[elisp:(org-cycle)][| ]]
+"""
+class argsProc(icm.Cmnd):
+    cmndParamsMandatory = [ ]
+    cmndParamsOptional = [ ]
+    cmndArgsLen = {'Min': 0, 'Max': 1000,}
+
+    @icm.subjectToTracking(fnLoc=True, fnEntry=True, fnExit=True)
+    def cmnd(self,
+        interactive=False,        # Can also be called non-interactively
+        argsList=[],         # or Args-Input
+    ):
+        cmndOutcome = self.getOpOutcome()
+        if interactive:
+            if not self.cmndLineValidate(outcome=cmndOutcome):
+                return cmndOutcome
+            effectiveArgsList = G.icmRunArgsGet().cmndArgs
+        else:
+            effectiveArgsList = argsList
+
+        callParamsDict = {}
+        if not icm.cmndCallParamsValidate(callParamsDict, interactive, outcome=cmndOutcome):
+            return cmndOutcome
+
+        cmndArgsSpec = self.cmndArgsSpec()
+        if not icm.cmndArgsValidate(effectiveArgsList, cmndArgsSpec, outcome=cmndOutcome):
+            return cmndOutcome
+####+END:
+
+        action = effectiveArgsList[0]
+        effectiveArgsList.pop(0)
+
+        print(action)
+        
+        for each in effectiveArgsList:
+            print(each)
+
+        return cmndOutcome.set(
+            opError=icm.OpError.Success,
+            opResults=None,
+        )
+
+####+BEGIN: bx:icm:python:method :methodName "cmndArgsSpec" :methodType "anyOrNone" :retType "bool" :deco "default" :argsList ""
+        """
+**  [[elisp:(org-cycle)][| ]]  [[elisp:(org-show-subtree)][|=]] [[elisp:(show-children 10)][|V]] [[elisp:(org-tree-to-indirect-buffer)][|>]] [[elisp:(blee:ppmm:org-mode-toggle)][Nat]] [[elisp:(beginning-of-buffer)][Top]] [[elisp:(delete-other-windows)][(1)]] || Method-anyOrNone :: /cmndArgsSpec/ retType=bool argsList=nil deco=default  [[elisp:(org-cycle)][| ]]
+"""
+    @icm.subjectToTracking(fnLoc=True, fnEntry=True, fnExit=True)
+    def cmndArgsSpec(self):
+####+END:        
+        """
+***** Cmnd Args Specification
+"""
+        cmndArgsSpecDict = icm.CmndArgsSpecDict()
+        cmndArgsSpecDict.argsDictAdd(
+            argPosition="1",
+            argName="action",
+            argChoices=['list', 'print'],
+            argDescription="Action to be specified by rest"
+        )
+        cmndArgsSpecDict.argsDictAdd(
+            argPosition="2:end",
+            argName="actionPars",
+            argChoices='Any',
+            argDescription="Rest of args for use by action"
+        )
+
+        return cmndArgsSpecDict
+
+
+####+BEGIN: bx:icm:python:method :methodName "cmndDocStr" :methodType "anyOrNone" :retType "bool" :deco "default" :argsList ""
+        """
+**  [[elisp:(org-cycle)][| ]]  [[elisp:(org-show-subtree)][|=]] [[elisp:(show-children 10)][|V]] [[elisp:(org-tree-to-indirect-buffer)][|>]] [[elisp:(blee:ppmm:org-mode-toggle)][Nat]] [[elisp:(beginning-of-buffer)][Top]] [[elisp:(delete-other-windows)][(1)]] || Method-anyOrNone :: /cmndDocStr/ retType=bool argsList=nil deco=default  [[elisp:(org-cycle)][| ]]
+"""
+    @icm.subjectToTracking(fnLoc=True, fnEntry=True, fnExit=True)
+    def cmndDocStr(self):
+####+END:        
+        return """
+***** [[elisp:(org-cycle)][| *CmndDesc:* | ]]  argsProc shows how arguments are processed.
+****** Method cmndArgsSpec, should first be specified as returning a dictionary.
+****** The cmndArgsSpec method can also be used by ICM-Players.
+Some more text here
+****** icm.cmndArgsValidate() can be used to verify completeness of runTimeArgs.
+****** Then args can be named  such as action = effectiveArgsList[0].
+****** Followed by effectiveArgsList.pop(0) to get to the following args.
+"""
+
+    
+
+####+BEGIN: bx:icm:python:cmnd:classHead :cmndName "bashSubProcWithArgs" :comment "" :parsMand "" :parsOpt "" :argsMin "0" :argsMax "1000" :asFunc "" :interactiveP ""
+"""
+*  [[elisp:(org-cycle)][| ]]  [[elisp:(org-show-subtree)][|=]] [[elisp:(show-children 10)][|V]] [[elisp:(org-tree-to-indirect-buffer)][|>]] [[elisp:(blee:ppmm:org-mode-toggle)][Nat]] [[elisp:(beginning-of-buffer)][Top]] [[elisp:(delete-other-windows)][(1)]] || ICM-Cmnd       :: /bashSubProcWithArgs/ parsMand= parsOpt= argsMin=0 argsMax=1000 asFunc= interactive=  [[elisp:(org-cycle)][| ]]
+"""
+class bashSubProcWithArgs(icm.Cmnd):
+    cmndParamsMandatory = [ ]
+    cmndParamsOptional = [ ]
+    cmndArgsLen = {'Min': 0, 'Max': 1000,}
+
+    @icm.subjectToTracking(fnLoc=True, fnEntry=True, fnExit=True)
+    def cmnd(self,
+        interactive=False,        # Can also be called non-interactively
+        argsList=[],         # or Args-Input
+    ):
+        cmndOutcome = self.getOpOutcome()
+        if interactive:
+            if not self.cmndLineValidate(outcome=cmndOutcome):
+                return cmndOutcome
+            effectiveArgsList = G.icmRunArgsGet().cmndArgs
+        else:
+            effectiveArgsList = argsList
+
+        callParamsDict = {}
+        if not icm.cmndCallParamsValidate(callParamsDict, interactive, outcome=cmndOutcome):
+            return cmndOutcome
+
+        cmndArgsSpec = self.cmndArgsSpec()
+        if not icm.cmndArgsValidate(effectiveArgsList, cmndArgsSpec, outcome=cmndOutcome):
+            return cmndOutcome
+####+END:
+
+        action = effectiveArgsList[0]
+        effectiveArgsList.pop(0)
+
+        print(action)
+        
+        for each in effectiveArgsList:
+            print(each)
+
+        outcome = icm.subProc_bash("""\
+echo action={action} {argsList}"""
+                                   .format(action=action, argsList=" ".join(effectiveArgsList))
+        ).log()
+        if outcome.isProblematic(): return(icm.EH_badOutcome(outcome))
+
+        return cmndOutcome.set(
+            opError=icm.OpError.Success,
+            opResults=None,
+        )
+
+####+BEGIN: bx:icm:python:method :methodName "cmndArgsSpec" :methodType "anyOrNone" :retType "bool" :deco "default" :argsList ""
+        """
+**  [[elisp:(org-cycle)][| ]]  [[elisp:(org-show-subtree)][|=]] [[elisp:(show-children 10)][|V]] [[elisp:(org-tree-to-indirect-buffer)][|>]] [[elisp:(blee:ppmm:org-mode-toggle)][Nat]] [[elisp:(beginning-of-buffer)][Top]] [[elisp:(delete-other-windows)][(1)]] || Method-anyOrNone :: /cmndArgsSpec/ retType=bool argsList=nil deco=default  [[elisp:(org-cycle)][| ]]
+"""
+    @icm.subjectToTracking(fnLoc=True, fnEntry=True, fnExit=True)
+    def cmndArgsSpec(self):
+####+END:        
+        return {
+            '0': {'action': ['list', 'print']},
+            "1&-1": "any",
+        }
+    
+
+####+BEGIN: bx:icm:python:method :methodName "cmndDocStr" :methodType "anyOrNone" :retType "bool" :deco "default" :argsList ""
+        """
+**  [[elisp:(org-cycle)][| ]]  [[elisp:(org-show-subtree)][|=]] [[elisp:(show-children 10)][|V]] [[elisp:(org-tree-to-indirect-buffer)][|>]] [[elisp:(blee:ppmm:org-mode-toggle)][Nat]] [[elisp:(beginning-of-buffer)][Top]] [[elisp:(delete-other-windows)][(1)]] || Method-anyOrNone :: /cmndDocStr/ retType=bool argsList=nil deco=default  [[elisp:(org-cycle)][| ]]
+"""
+    @icm.subjectToTracking(fnLoc=True, fnEntry=True, fnExit=True)
+    def cmndDocStr(self):
+####+END:        
+        return """
+** TODO Place holder for this commands doc string.  [[elisp:(org-cycle)][| ]]
+*** More Comes Here
+"""
+    
+
+####+BEGIN: bx:icm:python:cmnd:classHead :modPrefix "new" :cmndName "outStreamsExample" :comment "" :parsMand "" :parsOpt "" :argsMin "0" :argsMax "0" :asFunc "" :interactiveP ""
+"""
+*  [[elisp:(org-cycle)][| ]]  [[elisp:(org-show-subtree)][|=]] [[elisp:(show-children 10)][|V]] [[elisp:(org-tree-to-indirect-buffer)][|>]] [[elisp:(blee:ppmm:org-mode-toggle)][Nat]] [[elisp:(beginning-of-buffer)][Top]] [[elisp:(delete-other-windows)][(1)]] || ICM-Cmnd       :: /outStreamsExample/ parsMand= parsOpt= argsMin=0 argsMax=0 asFunc= interactive=  [[elisp:(org-cycle)][| ]]
+"""
+class outStreamsExample(icm.Cmnd):
+    cmndParamsMandatory = [ ]
+    cmndParamsOptional = [ ]
+    cmndArgsLen = {'Min': 0, 'Max': 0,}
+
+    @icm.subjectToTracking(fnLoc=True, fnEntry=True, fnExit=True)
+    def cmnd(self,
+        interactive=False,        # Can also be called non-interactively
+    ):
+        cmndOutcome = self.getOpOutcome()
+        if interactive:
+            if not self.cmndLineValidate(outcome=cmndOutcome):
+                return cmndOutcome
+
+        callParamsDict = {}
+        if not icm.cmndCallParamsValidate(callParamsDict, interactive, outcome=cmndOutcome):
+            return cmndOutcome
+####+END:
+        
+        logger = icm.LOG_Control().loggerGet()
+
+        logger.debug('Raw Logging' + ucf.stackFrameInfoGet(1) )
+        icm.TM_here('Here' + ' Tracking')
+        icm.TM_note('UnHere Tracking')
+
+        #for thisArg in icm.icmRunArgs.cmndArgs:
+            #print ('cmndExample() received cmndArg=' + thisArg)
+
+        icm.do( intrusiveFunc, ' With Some Parameter' )
+ 
+    
+    def cmndDocStr(self): return """\
+** Example of using built-in features of an CMND in an ICM.
+
+     - The icm.callableEntryEnhancer() must be included to enable --docstring.
+     - Decorator @icm.subjectToTracking() enables Call Monitoring.
+     - icm.do() enables invokation monitoring
+     - icm.TM_ enables tracking/tracing using the LOG_ facility.
+** TODO Missing Features :: ANN, EH_ DryRun LOG_ description.
+"""
+   
+####+BEGIN: bx:icm:python:func :funcName "intrusiveFunc" :funcType "anyOrNone" :retType "bool" :deco "default" :argsList "arg"
+"""
+*  [[elisp:(org-cycle)][| ]]  [[elisp:(org-show-subtree)][|=]] [[elisp:(show-children 10)][|V]] [[elisp:(org-tree-to-indirect-buffer)][|>]] [[elisp:(blee:ppmm:org-mode-toggle)][Nat]] [[elisp:(beginning-of-buffer)][Top]] [[elisp:(delete-other-windows)][(1)]] || Func-anyOrNone :: /intrusiveFunc/ retType=bool argsList=(arg) deco=default  [[elisp:(org-cycle)][| ]]
+"""
+@icm.subjectToTracking(fnLoc=True, fnEntry=True, fnExit=True)
+def intrusiveFunc(
+    arg,
+):
+####+END:
+    """Example of an intrusive function that can be subject to dryRun.
+    Could also be done with @subjectToDryRun
+    """
+    if icm.icmRunArgs_isRunModeDryRun():
+        print(( "Skipping This Intrusive Function" + arg ))
+        return
+
+    print(( "Performing Some Intrusive Action" + arg ))
+
+
+####+BEGIN: bx:icm:python:cmnd:classHead :cmndName "platformConfigsUse" :comment "" :parsMand "" :parsOpt "" :argsMin "0" :argsMax "0" :asFunc "" :interactiveP ""
+"""
+*  [[elisp:(org-cycle)][| ]]  [[elisp:(org-show-subtree)][|=]] [[elisp:(show-children 10)][|V]] [[elisp:(org-tree-to-indirect-buffer)][|>]] [[elisp:(blee:ppmm:org-mode-toggle)][Nat]] [[elisp:(beginning-of-buffer)][Top]] [[elisp:(delete-other-windows)][(1)]] || ICM-Cmnd       :: /platformConfigsUse/ parsMand= parsOpt= argsMin=0 argsMax=0 asFunc= interactive=  [[elisp:(org-cycle)][| ]]
+"""
+class platformConfigsUse(icm.Cmnd):
+    cmndParamsMandatory = [ ]
+    cmndParamsOptional = [ ]
+    cmndArgsLen = {'Min': 0, 'Max': 0,}
+
+    @icm.subjectToTracking(fnLoc=True, fnEntry=True, fnExit=True)
+    def cmnd(self,
+        interactive=False,        # Can also be called non-interactively
+    ):
+        cmndOutcome = self.getOpOutcome()
+        if interactive:
+            if not self.cmndLineValidate(outcome=cmndOutcome):
+                return cmndOutcome
+
+        callParamsDict = {}
+        if not icm.cmndCallParamsValidate(callParamsDict, interactive, outcome=cmndOutcome):
+            return cmndOutcome
+
+####+END:
+        configBaseDir = bxPlatformThis.pkgBase_configDir()
+
+        platformConfigFpBase = bxPlatformConfig.configPkgInfoFpBaseDir_obtain(configBaseDir)
+        bisosUserName = bxPlatformConfig.bisosUserName_fpObtain(configBaseDir)
+        bisosGroupName = bxPlatformConfig.bisosGroupName_fpObtain(configBaseDir)
+        platformControlBaseDir = bxPlatformConfig.platformControlBaseDir_fpObtain(configBaseDir)
+
+        icm.ANN_write(configBaseDir)
+        icm.ANN_here(platformConfigFpBase)
+        icm.ANN_here(bisosUserName)
+        icm.ANN_here(bisosGroupName)
+        icm.ANN_here(platformControlBaseDir)
+
+        return cmndOutcome.set(
+            opError=icm.OpError.Success,
+            opResults=None,
+        )
+
+####+BEGIN: bx:icm:python:method :methodName "cmndDocStr" :methodType "anyOrNone" :retType "bool" :deco "default" :argsList ""
+        """
+**  [[elisp:(org-cycle)][| ]]  [[elisp:(org-show-subtree)][|=]] [[elisp:(show-children 10)][|V]] [[elisp:(org-tree-to-indirect-buffer)][|>]] [[elisp:(blee:ppmm:org-mode-toggle)][Nat]] [[elisp:(beginning-of-buffer)][Top]] [[elisp:(delete-other-windows)][(1)]] || Method-anyOrNone :: /cmndDocStr/ retType=bool argsList=nil deco=default  [[elisp:(org-cycle)][| ]]
+"""
+    @icm.subjectToTracking(fnLoc=True, fnEntry=True, fnExit=True)
+    def cmndDocStr(self):
+####+END:        
+        return """
+***** [[elisp:(org-cycle)][| *CmndDesc:* | ]]  Using the platform library obtain current configurations and use them (report).
+"""
 
     
 
@@ -446,6 +710,8 @@ class unitTest(icm.Cmnd):
 *  [[elisp:(beginning-of-buffer)][Top]] ################ [[elisp:(blee:ppmm:org-mode-toggle)][Nat]] [[elisp:(delete-other-windows)][(1)]]    *= =Framework::=   G_main -- Instead Of ICM Dispatcher =*  [[elisp:(org-cycle)][| ]]  [[elisp:(org-show-subtree)][|=]] 
 """
 ####+END:
+
+
 
 ####+BEGIN: bx:icm:python:func :funcName "G_main" :funcType "FrameWrk" :retType "Void" :deco "" :argsList ""
 """
